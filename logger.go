@@ -50,83 +50,92 @@ func SetSpecialSlug(slug string) {
 	slugs[LoglvlSpecial] = slug
 }
 
-func Debug(msg string) {
-	printLog(LoglvlDebug, msg)
+func Debug(format string, a ...interface{}) {
+	printLog(LoglvlDebug, format, a...)
 }
 
-func DebugWithValues(msg string, vals map[string]interface{}) {
-	printLog(LoglvlDebug, msg)
-	for k, v := range vals {
+func DebugWithValues(values map[string]interface{}, format string, a ...interface{}) {
+	printLog(LoglvlDebug, format, a...)
+	for k, v := range values {
 		printKeyVal(LoglvlDebug, k, v)
 	}
 }
 
-func Info(msg string) {
-	printLog(LoglvlInfo, msg)
+func Info(format string, a ...interface{}) {
+	printLog(LoglvlInfo, format, a...)
 }
 
-func InfoWithValues(msg string, vals map[string]interface{}) {
-	printLog(LoglvlInfo, msg)
-	for k, v := range vals {
+func InfoWithValues(values map[string]interface{}, format string, a ...interface{}) {
+	printLog(LoglvlInfo, format, a...)
+	for k, v := range values {
 		printKeyVal(LoglvlInfo, k, v)
 	}
 }
 
-func Special(msg string) {
-	printLog(LoglvlSpecial, msg)
+func Special(format string, a ...interface{}) {
+	printLog(LoglvlSpecial, format, a...)
 }
 
-func SpecialWithValues(msg string, vals map[string]interface{}) {
-	printLog(LoglvlSpecial, msg)
-	for k, v := range vals {
+func SpecialWithValues(values map[string]interface{}, format string, a ...interface{}) {
+	printLog(LoglvlSpecial, format, a...)
+	for k, v := range values {
 		printKeyVal(LoglvlSpecial, k, v)
 	}
 }
 
-func Err(msg string) {
-	printLog(LoglvlErr, msg)
+func Err(format string, a ...interface{}) {
+	printLog(LoglvlErr, format, a...)
 }
 
-func ErrWithError(msg string, err error) {
-	printLog(LoglvlErr, msg)
+func ErrWithError(err error, format string, a ...interface{}) {
+	printLog(LoglvlErr, format, a...)
 	printSubMsg(LoglvlErr, err.Error())
 }
 
-func ErrWithValues(msg string, vals map[string]interface{}) {
-	printLog(LoglvlErr, msg)
-	for k, v := range vals {
+func ErrWithValues(values map[string]interface{}, format string, a ...interface{}) {
+	printLog(LoglvlErr, format, a...)
+	for k, v := range values {
 		printKeyVal(LoglvlErr, k, v)
 	}
 }
 
-func Fatal(msg string, code int) {
-	printLog(LoglvlFatal, msg)
+func Fatal(code int, format string, a ...interface{}) {
+	printLog(LoglvlFatal, format, a...)
 	os.Exit(code)
 }
 
-func FatalWithError(msg string, err error, code int) {
-	printLog(LoglvlFatal, msg)
+func FatalWithError(code int, err error, format string, a ...interface{}) {
+	printLog(LoglvlFatal, format, a...)
 	printSubMsg(LoglvlFatal, err.Error())
 	os.Exit(code)
 }
 
-func printLog(llvl loglvl, msg string) {
+func printLog(llvl loglvl, format string, a ...interface{}) {
 	if llvl >= LOG_LVL {
 		msgSlug := colors[llvl].Sprint(fmt.Sprintf("%s%s%s", SLUG_START, slugs[llvl], SLUG_END))
-		fmt.Fprintf(OUT, "%s %s %s\n", time.Now().Format(TIME_FORMAT), msgSlug, msg)
+		_, err := fmt.Fprintf(OUT, "%s %s %s\n", time.Now().Format(TIME_FORMAT), msgSlug, fmt.Sprintf(format, a...))
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
 func printSubMsg(llvl loglvl, msg string) {
 	if llvl >= LOG_LVL {
-		fmt.Fprintf(OUT, "%s %s\n", subColors[llvl].Sprint("-"), colors[llvl].Sprint(msg))
+		_, err := fmt.Fprintf(OUT, "%s %s\n", subColors[llvl].Sprint("-"), colors[llvl].Sprint(msg))
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
 func printKeyVal(llvl loglvl, key, value interface{}) {
 	if llvl >= LOG_LVL {
 		slug := subColors[llvl].Sprintf("%s %s:", subColors[llvl].Sprint("-"), colorKey.Sprint(key))
-		fmt.Fprintf(OUT, "%s %v\n", slug, value)
+		_, err := fmt.Fprintf(OUT, "- %s: %v\n", slug, value)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
